@@ -128,6 +128,37 @@
       "winrm_password": "vagrant",
       "winrm_timeout": "{{user `winrm_timeout`}}",
       "winrm_username": "vagrant"
+    },
+    {
+      "type": "parallels-iso",
+      "prlctl": [
+        ["set", "{{.Name}}", "--memsize", "2048"],
+        ["set", "{{.Name}}", "--cpus", "2"],
+        ["set", "{{.Name}}", "--efi-boot", "off"]
+      ],
+      "parallels_tools_flavor": "win",
+      "parallels_tools_mode": "attach",
+      "guest_os_type": "win-10",
+      "iso_url": "{{ user `iso_url` }}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "disk_size": 65536,
+      "hard_drive_interface": "sata",
+      "communicator": "winrm",
+      "winrm_username": "vagrant",
+      "winrm_password": "vagrant",
+      "winrm_timeout": "8h",
+      "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+      "shutdown_timeout": "15m",
+      "floppy_files": [
+        "{{user `autounattend`}}",
+        "./scripts/disable-screensaver.ps1",
+        "./scripts/disable-winrm.ps1",
+        "./scripts/docker/enable-winrm.ps1",
+        "./scripts/docker/2016/install-containers-feature.ps1",
+        "./scripts/microsoft-updates.bat",
+        "./scripts/win-updates.ps1"
+      ]
     }
   ],
   "post-processors": [
@@ -135,7 +166,7 @@
       "keep_input_artifact": false,
       "output": "windows_2019_docker_{{.Provider}}.box",
       "type": "vagrant",
-      "vagrantfile_template": "vagrantfile-windows_2016.template"
+      "vagrantfile_template": "vagrantfile-windows_2019_core.template"
     }
   ],
   "provisioners": [
@@ -191,7 +222,7 @@
     "autounattend": "./answer_files/2019_core/Autounattend.xml",
     "disk_size": "81920",
     "disk_type_id": "1",
-    "docker_images": "mcr.microsoft.com/windows/nanoserver:1809 mcr.microsoft.com/windows/servercore:ltsc2019 mcr.microsoft.com/windows/servercore:1809 mcr.microsoft.com/windows:1809",
+    "docker_images": "mcr.microsoft.com/windows/nanoserver:1809 mcr.microsoft.com/windows/servercore:ltsc2019",
     "docker_provider": "ee",
     "docker_version": "19.03.5",
     "headless": "false",
