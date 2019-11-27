@@ -87,6 +87,36 @@
       "winrm_password": "vagrant",
       "winrm_timeout": "{{user `winrm_timeout`}}",
       "winrm_username": "vagrant"
+    },
+    {
+      "type": "parallels-iso",
+      "prlctl": [
+        ["set", "{{.Name}}", "--memsize", "2048"],
+        ["set", "{{.Name}}", "--cpus", "2"],
+        ["set", "{{.Name}}", "--efi-boot", "off"]
+      ],
+      "parallels_tools_flavor": "win",
+      "parallels_tools_mode": "attach",
+      "guest_os_type": "win-10",
+      "iso_url": "{{ user `iso_url` }}",
+      "iso_checksum_type": "{{user `iso_checksum_type`}}",
+      "iso_checksum": "{{user `iso_checksum`}}",
+      "disk_size": 65536,
+      "hard_drive_interface": "sata",
+      "communicator": "winrm",
+      "winrm_username": "vagrant",
+      "winrm_password": "vagrant",
+      "winrm_timeout": "8h",
+      "shutdown_command": "shutdown /s /t 10 /f /d p:4:1 /c \"Packer Shutdown\"",
+      "shutdown_timeout": "15m",
+      "floppy_files": [
+        "{{user `autounattend`}}",
+        "./scripts/disable-screensaver.ps1",
+        "./scripts/disable-winrm.ps1",
+        "./scripts/enable-winrm.ps1",
+        "./scripts/microsoft-updates.bat",
+        "./scripts/win-updates.ps1"
+      ]
     }
   ],
   "post-processors": [
@@ -94,21 +124,20 @@
       "keep_input_artifact": false,
       "output": "windows_2019_core_{{.Provider}}.box",
       "type": "vagrant",
-      "vagrantfile_template": "vagrantfile-windows_2016_core.template"
+      "vagrantfile_template": "vagrantfile-windows_2019_core.template"
     }
   ],
   "provisioners": [
     {
       "scripts": [
         "./scripts/vm-guest-tools.bat",
-        "./scripts/enable-rdp.bat"
+        "./scripts/enable-rdp.bat",
+        "./scripts/install-net462.bat"
       ],
       "type": "windows-shell"
     },
     {
-      "scripts": [
-        "./scripts/debloat-windows.ps1"
-      ],
+      "scripts": ["./scripts/debloat-windows.ps1"],
       "type": "powershell"
     },
     {
@@ -120,6 +149,10 @@
         "./scripts/compact.bat"
       ],
       "type": "windows-shell"
+    },
+    {
+      "scripts": ["./scripts/enable-iis.ps1"],
+      "type": "powershell"
     }
   ],
   "variables": {
@@ -134,4 +167,3 @@
     "winrm_timeout": "6h"
   }
 }
-
